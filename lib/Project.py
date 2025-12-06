@@ -54,6 +54,7 @@ class Project:
         self.crs_id = ''
         self.crs_tools = crs_tools
         # self.gpkg_tools = None
+        self.locations_layer_name = None
         self.map_views = {}
         self.process_by_label = {}
         self.sqls_to_process = []
@@ -114,43 +115,46 @@ class Project:
     def load_map_views(self,
                        wfs = None):# [wfs_url, wfs_user, wfs_password]):
         str_error = ''
-        file_name = self.file_path
+        self.map_views.clear()
+        if self.locations_layer_name is None:
+            self.locations_layer_name = defs_project.LOCATIONS_LAYER_NAME
+        file_path = self.file_path
         # str_error, layer_names = self.gpkg_tools.get_layers_names(file_name)
-        str_error, layer_names = GDALTools.get_layers_names(file_name,
+        str_error, layer_names = GDALTools.get_layers_names(file_path = file_path,
                                                             wfs = wfs)
         if str_error:
             str_error = ('Loading gpgk:\n{}\nError:\n{}'.
-                         format(file_name, str_error))
+                         format(file_path, str_error))
             return str_error
-        if not defs_project.LOCATIONS_LAYER_NAME in layer_names:
+        if not self.locations_layer_name in layer_names:
             str_error = ('Loading gpgk:\n{}\nError: not exists layer:\n{}'.
-                         format(file_name, defs_project.LOCATIONS_LAYER_NAME))
+                         format(file_path, defs_project.LOCATIONS_LAYER_NAME))
             return str_error
-        layer_name = defs_project.LOCATIONS_LAYER_NAME
+        layer_name = self.locations_layer_name
         fields = defs_project.fields_by_layer[defs_project.LOCATIONS_LAYER_NAME]
         fields = {}
         field_name = defs_project.LOCATIONS_FIELD_NAME
-        fields[field_name] = defs_project.fields_by_layer[layer_name][field_name]
+        # provisional porque no lee el campo name
+        field_name = defs_project.LOCATIONS_FIELD_TEMP
+        fields[field_name] = defs_project.fields_by_layer[defs_project.LOCATIONS_LAYER_NAME][field_name]
         field_geometry = defs_project.LOCATIONS_FIELD_GEOMETRY
-        fields[field_geometry] = defs_project.fields_by_layer[layer_name][field_geometry]
+        fields[field_geometry] = defs_project.fields_by_layer[defs_project.LOCATIONS_LAYER_NAME][field_geometry]
         filter_fields = None
-        # str_error, features = self.gpkg_tools.get_features(file_name,
-        #                                                    layer_name,
-        #                                                    fields,
-        #                                                    filter_fields)
-        # str_error, features = GDALTools.get_features(file_name,
-        #                                              layer_name,
-        #                                              fields,
-        #                                              filter_fields)
-        # if str_error:
-        #     str_error = ('Getting locations from gpgk:\n{}\nError:\n{}'.
-        #                  format(file_name, str_error))
-        #     return str_error
-        # self.map_views.clear()
-        # for i in range(len(features)):
-        #     name = features[i][defs_project.LOCATIONS_FIELD_NAME]
-        #     wkb_geometry = features[i][defs_project.LOCATIONS_FIELD_GEOMETRY]
-        #     self.map_views[name] = wkb_geometry
+        str_error, features = GDALTools.get_features(file_path,
+                                                     layer_name,
+                                                     fields,
+                                                     filter_fields,
+                                                     wfs = wfs)
+        if str_error:
+            str_error = ('Getting locations from gpgk:\n{}\nError:\n{}'.
+                         format(file_path, str_error))
+            return str_error
+        for i in range(len(features)):
+            # name = features[i][defs_project.LOCATIONS_FIELD_NAME]
+            # provisional porque no lee el campo name
+            name = features[i][defs_project.LOCATIONS_FIELD_TEMP]
+            wkb_geometry = features[i][defs_project.LOCATIONS_FIELD_GEOMETRY]
+            self.map_views[name] = wkb_geometry
         return str_error
 
     def load_project_definition(self,
