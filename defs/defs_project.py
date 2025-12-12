@@ -58,5 +58,5 @@ fields_by_layer[LOCATIONS_LAYER_NAME][LOCATIONS_FIELD_GEOMETRY] = defs_gdal.geom
 restrictions_in_fields_by_layer = {} # to add restrictions in fields example:
 # restrictions_in_fields_by_layer[MANAGEMENT_LAYER_NAME][FIELD_ID] = ['PRIMARY KEY', 'NOT NULL']
 
-sld_by_layer = {}
-sld_by_layer[LOCATIONS_LAYER_NAME] = LOCATIONS_SLD_FILE_PATH
+sld_file_path_by_layer = {}
+sld_file_path_by_layer[LOCATIONS_LAYER_NAME] = LOCATIONS_SLD_FILE_PATH
