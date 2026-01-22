@@ -330,6 +330,9 @@ class Project:
                 self.sqls_to_process.append(sql)
         return str_error
 
+    def pg_layers_management(self):
+        return
+
     def project_definition_gui(self,
                                is_process_creation,
                                parent_widget = None):
